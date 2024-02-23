@@ -86,7 +86,7 @@ object FastUse : Module("FastUse", ModuleCategory.PLAYER) {
 
             "duplicationpacket" -> {
                 repeat(5) {
-                    sendPacket(Event(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround), false)
+                    sendPacket(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround), false)
                 }
             }
         }
