@@ -28,8 +28,14 @@ import net.ccbluex.liquidbounce.value.IntegerValue
 import net.ccbluex.liquidbounce.value.ListValue
 import net.minecraft.block.BlockAir
 import net.minecraft.entity.Entity
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.BlockPos
 import net.minecraft.network.play.server.S12PacketEntityVelocity
 import net.minecraft.network.play.server.S27PacketExplosion
+import net.minecraft.network.play.client.C07PacketPlayerDigging
+import net.minecraft.network.play.client.C03PacketPlayer
+import net.minecraft.network.play.client.C03PacketPlayer.C06PacketPlayerPosLook
+import net.minecraft.network.play.server.S08PacketPlayerPosLook
 import net.minecraft.network.play.server.S32PacketConfirmTransaction
 import net.minecraft.util.AxisAlignedBB
 import kotlin.math.abs
@@ -45,7 +51,7 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
         "Mode", arrayOf(
             "Simple", "AAC", "AACPush", "AACZero", "AACv4",
             "Reverse", "SmoothReverse", "Jump", "Glitch", "Legit",
-            "GhostBlock", "Vulcan", "Matrix", "Intave"
+            "GhostBlock", "Vulcan", "Matrix", "Intave", "Grim"
         ), "Simple"
     )
 
@@ -103,6 +109,10 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
     private val maxYMotion by FloatValue("MaxYMotion", 0.36f, 0f..0.46f) { limitMaxMotionValue.isActive() }
     //0.00075 is added silently
 
+    // Grim
+    private var canCancel = false
+    private var flagTimer = MSTimer()
+
     // Vanilla XZ limits
     // Non-KB: 0.4 (no sprint), 0.9 (sprint)
     // KB 1: 0.9 (no sprint), 1.4 (sprint)
@@ -138,6 +148,29 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
 
     override fun onDisable() {
         mc.thePlayer?.speedInAir = 0.02F
+    }
+
+    override fun onEnable() {
+        canCancel = false
+        flagTimer.reset()
+    }
+
+    override fun onTick() {
+        when (mode.lowercase()) {
+            grim -> {
+                if (!flagTimer.hasTimePassed(50)) {
+                    canCancel = false
+                    return
+                }
+        
+                if (canCancel) {
+                    val pos = BlockPos(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ)
+                    mc.netHandler.addToSendQueue(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround))
+                    mc.netHandler.addToSendQueue(C07PacketPlayerDigging(C07PacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, EnumFacing.DOWN))
+                    canCancel = false
+                }
+            }
+        }
     }
 
     @EventTarget
@@ -271,6 +304,24 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
                         intaveTick = 0
                     }
                     hasReceivedVelocity = false
+                }
+            }
+
+            "grim" -> {
+                if (packet is S08PacketPlayerPosLook)
+                    flagTimer.reset()
+        
+                if (!flagTimer.hasTimePassed(50)) {
+                    canCancel = false
+                    return
+                }
+        
+                if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
+                    event.cancelEvent()
+                    canCancel = true
+                } else if (packet is S27PacketExplosion) {
+                    event.cancelEvent()
+                    canCancel = true
                 }
             }
         }
