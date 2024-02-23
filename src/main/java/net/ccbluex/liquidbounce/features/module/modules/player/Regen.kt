@@ -21,8 +21,9 @@ import net.minecraft.potion.Potion
 
 object Regen : Module("Regen", ModuleCategory.PLAYER) {
 
-    private val mode by ListValue("Mode", arrayOf("Vanilla", "Spartan"), "Vanilla")
-        private val speed by IntegerValue("Speed", 100, 1..100) { mode == "Vanilla" }
+    private val mode by ListValue("Mode", arrayOf("Vanilla", "DuplicationExploit"), "DuplicationExploit")
+    private val speed by IntegerValue("Speed", 100, 1..100) { mode == "DuplicationExploit" }
+    private val vanillaspeed by IntegerValue("Speed", 100, 1..100) { mode == "Vanilla" }
 
     private val delay by IntegerValue("Delay", 0, 0..10000)
     private val health by IntegerValue("Health", 18, 0..20)
@@ -57,19 +58,14 @@ object Regen : Module("Regen", ModuleCategory.PLAYER) {
 
         when (mode.lowercase()) {
             "vanilla" -> {
-                repeat(speed) {
+                repeat(vanillaspeed) {
                     sendPacket(C03PacketPlayer(serverOnGround))
                 }
             }
 
-            "spartan" -> {
-                if (!isMoving && serverOnGround) {
-                    repeat(9) {
-                        sendPacket(C03PacketPlayer(serverOnGround))
-                    }
-
-                    mc.timer.timerSpeed = 0.45F
-                    resetTimer = true
+            "duplicationexploit" -> {
+                repeat(speed) {
+                    sendPacket(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround), false)
                 }
             }
         }
