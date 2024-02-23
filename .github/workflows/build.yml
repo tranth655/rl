@@ -32,7 +32,4 @@ jobs:
       - name: Upload artifact
         run: |
           cd build/libs
-          ls
-          export JAR=$(find . -regex '.*liquidbounce-b[0-9|.]*\.jar')
-          echo $JAR
-          curl --connect-timeout 30 -o /dev/null -F 'payload_json={"content":null,"embeds":[{"color":2302093,"fields":[{"name":"version","value":"```\n${{ env.VERSION }}\n```","inline":true},{"name":"branch","value":"```\nlegacy\n```","inline":true}],"author":{"name":"rl - random ass mfc client","icon_url":"https://cdn.discordapp.com/guilds/1174273059717386330/users/618729172495368193/avatars/9646ad74133227070f67deb7cf72e04a.png"},"timestamp":"${{ env.DATE }}"}],"attachments":[]}' -F "file1=@$(echo $JAR)" ${{ secrets.WEBHOOK }}
+          curl --connect-timeout 30 -o /dev/null -F 'payload_json={"content":null,"embeds":[{"color":2302093,"fields":[{"name":"version","value":"```\n${{ env.VERSION }}\n```","inline":true},{"name":"branch","value":"```\nlegacy\n```","inline":true}],"author":{"name":"rl - random ass mfc client","icon_url":"https://cdn.discordapp.com/guilds/1174273059717386330/users/618729172495368193/avatars/9646ad74133227070f67deb7cf72e04a.png"},"timestamp":"${{ env.DATE }}"}],"attachments":[]}' -F "file1=@rl-v1.jar" ${{ secrets.WEBHOOK }}
