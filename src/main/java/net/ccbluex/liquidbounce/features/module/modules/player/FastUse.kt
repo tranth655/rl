@@ -84,7 +84,7 @@ object FastUse : Module("FastUse", ModuleCategory.PLAYER) {
                 msTimer.reset()
             }
 
-            "duplicationpacket" -> {
+            "duplicationexploit" -> {
                 repeat(5) {
                     sendPacket(C06PacketPlayerPosLook(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ, mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch, mc.thePlayer.onGround), false)
                 }
