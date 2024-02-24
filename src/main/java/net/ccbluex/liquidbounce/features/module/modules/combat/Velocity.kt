@@ -175,7 +175,7 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
 
     @EventTarget
     fun onUpdate(event: UpdateEvent, packetevnt: PacketEvent) {
-        val packet = packetenvt.packet
+        val packet = packetevnt.packet
         val thePlayer = mc.thePlayer ?: return
 
         if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
@@ -318,10 +318,10 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
                 }
         
                 if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
-                    packetenvt.cancelEvent()
+                    packetevnt.cancelEvent()
                     canCancel = true
                 } else if (packet is S27PacketExplosion) {
-                    packetenvt.cancelEvent()
+                    packetevnt.cancelEvent()
                     canCancel = true
                 }
             }
