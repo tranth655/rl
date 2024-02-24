@@ -157,7 +157,7 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
 
     override fun onTick() {
         when (mode.lowercase()) {
-            grim -> {
+            "grim" -> {
                 if (!flagTimer.hasTimePassed(50)) {
                     canCancel = false
                     return
@@ -174,7 +174,8 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
     }
 
     @EventTarget
-    fun onUpdate(event: UpdateEvent) {
+    fun onUpdate(event: UpdateEvent, packetevnt: PacketEvent) {
+        val packet = packetenvt.packet
         val thePlayer = mc.thePlayer ?: return
 
         if (thePlayer.isInWater || thePlayer.isInLava || thePlayer.isInWeb)
@@ -317,10 +318,10 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
                 }
         
                 if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
-                    event.cancelEvent()
+                    packetenvt.cancelEvent()
                     canCancel = true
                 } else if (packet is S27PacketExplosion) {
-                    event.cancelEvent()
+                    packetenvt.cancelEvent()
                     canCancel = true
                 }
             }
