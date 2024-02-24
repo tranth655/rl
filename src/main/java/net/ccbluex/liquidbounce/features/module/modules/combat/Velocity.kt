@@ -155,7 +155,7 @@ object Velocity : Module("Velocity", ModuleCategory.COMBAT) {
         flagTimer.reset()
     }
 
-    override fun onTick() {
+    fun onTick() {
         when (mode.lowercase()) {
             "grim" -> {
                 if (!flagTimer.hasTimePassed(50)) {
