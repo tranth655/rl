@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [ legacy ]
+  pull_request:
+    branches: [ legacy ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Setup java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: 8
+          cache: "gradle"
+      - name: Setting things
+        run: |
+          echo "VERSION=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
+          echo "DATE=$(date --date='${{ github.event.head_commit.timestamp }}' -u '+%Y-%m-%dT%H:%M:%S.000Z')" >> $GITHUB_ENV
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew setupCiWorkspace
+          ./gradlew build
+      - name: Upload artifact
+        run: |
+          cd build/libs
+          curl --connect-timeout 30 -o /dev/null -F 'payload_json={"content":null,"embeds":[{"color":2302093,"fields":[{"name":"version","value":"```\n${{ env.VERSION }}\n```","inline":true},{"name":"branch","value":"```\nlegacy\n```","inline":true}],"author":{"name":"rl - random ass mfc client","icon_url":"https://cdn.discordapp.com/guilds/1174273059717386330/users/618729172495368193/avatars/9646ad74133227070f67deb7cf72e04a.png"},"timestamp":"${{ env.DATE }}"}],"attachments":[]}' -F "file1=@rl-v1.jar" ${{ secrets.WEBHOOK }}
